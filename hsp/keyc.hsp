@@ -1,0 +1,93 @@
+screen 0,340,150
+
+#include "hspext.as"
+comopen 4,"baud=9600 parity=N data=8 stop=1"
+
+
+#module
+
+#include "hspext.as"
+
+#defcfunc remGet
+
+rf=0
+rd=""
+repeat
+d=""
+ repeat
+ comget d,1
+ if rd!="" && d=="" {
+	 rf=1
+	 break
+ }
+ if d!="" : break
+ await 1
+ loop
+if rf=1 : break
+rd+=d
+await 1
+loop
+return int(rd)
+
+#global
+
+#define ks 7
+
+cls 0
+
+color 0,0,0
+
+pos 30,20
+mes "Å©"
+
+pos 70,20
+mes "Å®"
+
+pos 110,20
+mes "Å™"
+
+pos 150,20
+mes "Å´"
+
+pos 190,20
+mes "Z"
+
+pos 230,20
+mes "X"
+
+pos 270,20
+mes "end"
+
+dim data,ks
+
+i=0
+repeat ks
+
+repeat
+data(i)=remGet()
+if i=0 : break
+if data(i) != data(i-1) : break
+await 1
+loop
+
+pos 30+i*40,60
+mes data(i)
+
+
+i++
+loop
+
+buf=""
+notesel buf
+
+repeat ks
+noteadd str(data(cnt)),cnt
+loop
+
+notesave "keyc.txt"
+
+pos 30,100
+mes "saved."
+
+await 100
+end
